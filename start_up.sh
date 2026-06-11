@@ -68,6 +68,8 @@ if [ -f "$ENV_FILE" ]; then
         read -rp "Override existing config? [y/N]: " ov
         [[ "$ov" =~ ^[Yy]$ ]] && cp "$ENV_FILE" "${ENV_FILE}.bak" && setup "$(get_ip)"
     fi
+else
+    setup "$(get_ip)"
 fi
 
 xhost +local:docker &>/dev/null
