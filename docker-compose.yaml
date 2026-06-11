@@ -1,0 +1,43 @@
+x-ros-base: &ros-base
+  image: ros1
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+  stop_signal: SIGINT
+  network_mode: host
+  privileged: true
+  stdin_open: true
+  tty: true
+  user: user
+  env_file:
+    - ./.env
+  volumes:
+    - ./:/home/user/ros_ws
+    - /tmp/.X11-unix:/tmp/.X11-unix
+    # Mount your user directory into Docker for easier files retreival
+    - /home/$USER/:/home/user/host
+  command: bash
+
+services:
+  ros1:
+    <<: *ros-base
+    container_name: ros
+    profiles: ["cpu"]
+    environment:
+      - DISPLAY
+      - QT_X11_NO_MITSHM=1
+      - XDG_RUNTIME_DIR=/tmp/runtime-user
+
+  ros1-gpu:
+    <<: *ros-base
+    container_name: ros_gpu
+    profiles: ["gpu"]
+    runtime: nvidia
+    environment:
+      - DISPLAY
+      - QT_X11_NO_MITSHM=1
+      - XDG_RUNTIME_DIR=/tmp/runtime-user
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - __NV_PRIME_RENDER_OFFLOAD=1
+      - __GLX_VENDOR_LIBRARY_NAME=nvidia
